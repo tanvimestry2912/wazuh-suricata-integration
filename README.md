@@ -1,34 +1,97 @@
-# 🔒 Wazuh + Suricata Integration
+# 🛡️ Suricata IDS Integration with Wazuh
 
-**Wazuh** and **Suricata** are powerful open-source security tools that, when integrated, deliver a robust and comprehensive security monitoring solution.  
-This setup enhances visibility, detection, and response capabilities by combining **network-based** and **host-based** monitoring.
+## 📘 Project Description
+This project demonstrates how to deploy and configure **Suricata** as a Network Intrusion Detection System (NIDS) and integrate it with **Wazuh** for centralized log monitoring and alert visualization.
 
----
-
-## 🚀 Overview of the Integration
-
-### 1. Data Collection and Analysis
-- **Suricata** acts as a **Network IDS/IPS**, monitoring traffic for suspicious activities.  
-- It uses **signature-based** and **anomaly-based** detection to identify potential threats.  
-- **Wazuh** acts as a centralized **Security Information and Event Management (SIEM)** system, collecting and analyzing logs from Suricata and other sources.
-
-### 2. Unified Threat Detection
-- Suricata generates network-based alerts and forwards them to Wazuh for aggregation and correlation.  
-- This unified system detects complex attacks that span both **network** and **endpoint** environments, reducing false positives and improving accuracy.
-
-### 3. Incident Response and Forensics
-- Wazuh enriches Suricata’s network alerts with endpoint data, enabling deeper investigation.  
-- Supports **real-time alerting**, **automated responses**, and **detailed forensic reports** for faster remediation.  
-
-### 4. Scalability and Flexibility
-- Both tools scale horizontally — ideal for small setups or enterprise environments.  
-- Configurable rules, alerts, and reports make it highly adaptable to organizational needs.  
-
-### 5. Enhanced Visibility and Correlation
-- Wazuh’s dashboard integrates Suricata alerts alongside host-based events for **a single pane of glass** monitoring.  
-- Correlating network and endpoint data helps uncover **multi-stage attacks** and identify root causes efficiently.
+Suricata monitors network traffic for suspicious activities using predefined rule sets, while Wazuh collects and analyzes Suricata’s alert logs (`eve.json`) to generate real-time security insights.
 
 ---
 
-## ⚙️ Architecture Diagram
-*(Optional — you can upload one later in `/docs/architecture-diagram.png`)*  
+## ⚙️ Steps Overview
+
+### 1️⃣ Install Suricata
+```bash
+sudo apt-get install suricata -y
+2️⃣ Download Suricata Rules
+bash
+Copy code
+cd /tmp
+sudo curl -LO https://rules.emergingthreats.net/open/suricata-6.0.8/emerging.rules.tar.gz
+3️⃣ Extract and Move Rules
+bash
+Copy code
+sudo tar -xvzf emerging.rules.tar.gz
+sudo mv rules/*.rules /etc/suricata/rules/
+sudo chmod 777 /etc/suricata/rules/*.rules
+4️⃣ Configure suricata.yaml
+Open configuration file:
+
+bash
+Copy code
+sudo nano /etc/suricata/suricata.yaml
+Update network variables:
+yaml
+Copy code
+HOME_NET: "192.168.100.0/24"
+EXTERNAL_NET: "any"
+Define rule file path:
+yaml
+Copy code
+default-rule-path: /etc/suricata/rules
+rule-files:
+  - "*.rules"
+Set network interface:
+(Find interface name using ifconfig, e.g., enp0s3)
+
+yaml
+Copy code
+af-packet:
+  - interface: enp0s3
+Save and exit (Ctrl + O, Enter, Ctrl + X).
+
+5️⃣ Restart and Enable Suricata
+bash
+Copy code
+sudo systemctl restart suricata
+sudo systemctl enable suricata
+6️⃣ Enable Promiscuous Mode in VirtualBox
+Go to:
+
+mathematica
+Copy code
+Settings → Network → Adapter → Advanced → Promiscuous Mode → Allow All
+7️⃣ Configure Wazuh Agent to Read Suricata Logs
+Switch to root:
+
+bash
+Copy code
+sudo -i
+cd /var/ossec/etc
+sudo nano ossec.conf
+Add the following section inside <ossec_config>:
+
+xml
+Copy code
+<localfile>
+  <log_format>json</log_format>
+  <location>/var/log/suricata/eve.json</location>
+</localfile>
+Save and restart Wazuh agent:
+
+bash
+Copy code
+systemctl restart wazuh-agent
+8️⃣ Verify Logs in Wazuh Dashboard
+Open the Wazuh web interface and navigate to:
+
+nginx
+Copy code
+Modules → NIDS → Security Events
+You should see alerts such as:
+
+Suricata: Alert - STREAM excessive retransmissions
+
+ET SCAN Potential VNC Scan
+
+ET SCAN Suspicious inbound to SQL ports
+
