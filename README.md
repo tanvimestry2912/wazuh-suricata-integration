@@ -139,6 +139,8 @@ You should see alerts such as:
 ## 📊 Outcome
 
 ✅ Suricata captures and logs network intrusion events.
+
 ✅ Wazuh visualizes and alerts these events on a unified dashboard.
+
 ✅ Helps build a real-time **Network Intrusion Detection and Monitoring System**.
 
