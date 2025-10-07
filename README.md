@@ -1,16 +1,3 @@
-Sure 👍 Here’s a clean, ready-to-copy **README.md** for your Suricata + Wazuh project:
-
----
-
-````markdown
-# 🛡️ Suricata IDS Integration with Wazuh
-
-## 📘 Project Description
-This project demonstrates how to deploy and configure **Suricata** as a Network Intrusion Detection System (NIDS) and integrate it with **Wazuh** for centralized log monitoring and alert visualization.
-
-Suricata monitors network traffic for suspicious activities using predefined rule sets, while Wazuh collects and analyzes Suricata’s alert logs (`eve.json`) to generate real-time security insights.
-
----
 
 ## ⚙️ Steps Overview
 
